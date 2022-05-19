@@ -2,19 +2,29 @@ package com.revature.pms.services;
 
 import com.revature.pms.dao.ProductDAO;
 import com.revature.pms.model.Product;
+import com.revature.pms.utilities.NegativeValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ProductServiceImpl implements ProductService{
 
     @Autowired
     ProductDAO productDAO;
 
+    @Autowired
+    NegativeValue negativeValue;
+
     @Override
     public boolean addProduct(Product product) {
         System.out.println("Adding product in service");
+        if(negativeValue.checkNegativeValue(product.getQoh()) || negativeValue.checkNegativeValue(product.getPrice())){
+            return false;
+        }
         productDAO.save(product);
         return true;
     }
@@ -22,32 +32,36 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public boolean deleteProduct(int productId) {
         System.out.println("Deleting product in service");
-
+        productDAO.deleteById(productId);
         return false;
     }
 
     @Override
     public boolean updateProduct(Product product) {
+        System.out.println("Updating product in service");
+        productDAO.save(product);
         return false;
     }
 
     @Override
     public Product getProduct(int productId) {
-        return null;
+        Product pr = productDAO.getById(productId);
+        return pr;
     }
 
     @Override
     public boolean isProductExists(int productId) {
-        return false;
-    }
-
-    @Override
-    public List<Product> getProduct(String productName) {
-        return null;
+        return productDAO.existsById(productId);
     }
 
     @Override
     public List<Product> getProducts() {
+        return productDAO.findAll();
+    }
+
+    //by default these are not exposed
+    @Override
+    public List<Product> getProduct(String productName) {
         return null;
     }
 

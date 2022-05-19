@@ -8,6 +8,8 @@ import com.revature.pms.utilities.GenerateRandomNumber;
 import com.revature.pms.utilities.NegativeValue;
 import com.revature.pms.utilities.PasswordHashing;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -17,9 +19,6 @@ import java.util.ArrayList;
 public class ProductController {
     @Autowired()
     ProductDAO productDAO;
-
-    @Autowired
-    ProductService productService;
 
     @Autowired()
     Product product ;
@@ -31,20 +30,37 @@ public class ProductController {
     GenerateRandomNumber randomNumber = new GenerateRandomNumber();
 
     @Autowired
-    GenerateRandomBigNumber bigNum = new GenerateRandomBigNumber();
+    ProductService productService;
 
-    @Autowired
-    NegativeValue negative = new NegativeValue();
+    boolean result;
+
+    //Method will save a product to DB
+    @PostMapping //localhost:8084/product    ---HTTP method POST
+    public ResponseEntity<String> saveProduct(@RequestBody Product product){
+        ResponseEntity responseEntity=null;
+        if(productService.isProductExists(product.getProductId())){
+            responseEntity = new ResponseEntity<String>("Cannot save because product with product id: "+product.getProductId()+" already exists", HttpStatus.CONFLICT); //409
+        }
+        else{
+            result = productService.addProduct(product);
+            if(result){
+                responseEntity = new ResponseEntity<String>("Successfully saved your product: "+product, HttpStatus.OK); //200
+            }
+            else{
+                responseEntity = new ResponseEntity<String>("Cannot save either price or qoh is negative", HttpStatus.NOT_ACCEPTABLE); //406
+            }
+        }
+        return responseEntity;
+    }
 
     @GetMapping("/home") //localhost:8084/product/home
     public String home(){
         double result = randomNumber.getRandomNumber();
-        double bigResult = bigNum.getRandomBiggerNumber();
+
         return "Welcome To Product App - "
                 +product.displayMessage()+"---"
                 +passwordHashing.getHashedPassword()
-                +" Random number for this request is: "+result
-                +"-------BIG Random number is: "+bigResult;
+                +" Random number for this request is: "+result;
     }
 
     @GetMapping //localhost:8084/product
@@ -99,29 +115,13 @@ public class ProductController {
         return "Deleting details by product ID: "+productId;
     }
 
-    //Method will save a product to DB
-    @PostMapping //localhost:8084/product    ---HTTP method POST
-    public String saveProduct(@RequestBody Product product){
-        System.out.println("Saving details of: "+product);
-        //call the methods to save product
-        //check if price or qoh is negative --call method checkNegativeValue(int)
-        //if negative return "Cannot save your product because either price or qoh is negative"
-        //else return "Successfully saved product: "+product
-        if(negative.checkNegativeValue(product.getQoh()) || negative.checkNegativeValue(product.getPrice())){
-            return "Cannot save your product because either price or qoh is negative";
-        }
-        productService.addProduct(product);
-        return "Successfully saved product: "+product;
-    }
-
     //This method will update a product in DB
     @PutMapping //localhost:8084/product    ---HTTP method POST
     public String updateProduct(@RequestBody Product product){
         System.out.println("Updating details of: "+product);
         //call the methods to update product
-        if(negative.checkNegativeValue(product.getQoh()) || negative.checkNegativeValue(product.getPrice())){
-            return "Cannot update your product because either price or qoh is negative";
-        }
+        //return "Cannot update your product because either price or qoh is negative";
+
         return "Successfully updated product: "+product;
     }
 }
