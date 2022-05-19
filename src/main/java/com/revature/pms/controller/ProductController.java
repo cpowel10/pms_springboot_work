@@ -2,6 +2,7 @@ package com.revature.pms.controller;
 
 import com.revature.pms.dao.ProductDAO;
 import com.revature.pms.model.Product;
+import com.revature.pms.services.ProductService;
 import com.revature.pms.utilities.GenerateRandomBigNumber;
 import com.revature.pms.utilities.GenerateRandomNumber;
 import com.revature.pms.utilities.NegativeValue;
@@ -16,6 +17,9 @@ import java.util.ArrayList;
 public class ProductController {
     @Autowired()
     ProductDAO productDAO;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired()
     Product product ;
@@ -106,7 +110,7 @@ public class ProductController {
         if(negative.checkNegativeValue(product.getQoh()) || negative.checkNegativeValue(product.getPrice())){
             return "Cannot save your product because either price or qoh is negative";
         }
-        productDAO.save(product);
+        productService.addProduct(product);
         return "Successfully saved product: "+product;
     }
 
