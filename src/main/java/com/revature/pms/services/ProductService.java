@@ -18,4 +18,5 @@ public interface ProductService {
     public List<Product> getProductByQOH(int qoh);
     public List<Product> getProductByGreaterQOH(int greaterQoh);
 
+    List<Product> getProductByLessQOH(int lessQoh);
 }

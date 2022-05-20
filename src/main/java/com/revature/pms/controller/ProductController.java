@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +43,27 @@ public class ProductController implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
 
+    public ProductController(){
+        System.out.println("Product controller called");
+    }
+
+    @PostConstruct   //lifecycle method
+    public void callMeFirst(){
+        //for initilize
+        result=true;
+        System.out.println("Call me First called");
+    }
+
+    @PreDestroy
+    public void callMeLast(){
+        
+    }
+
     //Method will save a product to DB
     @PostMapping //localhost:8084/product    ---HTTP method POST
     public ResponseEntity<String> saveProduct(@RequestBody Product product){
         ResponseEntity responseEntity=null;
-        LOGGER.trace("TRACE - Save product started the execution");
-        LOGGER.debug("DEBUG - Save product started the execution");
         LOGGER.info("INFO - Save product started the execution");
-        LOGGER.warn("WARN - Save product started the execution");
-        LOGGER.error("ERROR - Save product started the execution");
         if(productService.isProductExists(product.getProductId())){
             LOGGER.warn("Product with product id: "+product.getProductId()+" already exists");
             responseEntity = new ResponseEntity<String>("Cannot save because product with product id: "+product.getProductId()+" already exists", HttpStatus.CONFLICT); //409
@@ -105,37 +119,23 @@ public class ProductController implements Serializable {
     }
 
     @GetMapping("/searchProductByName/{pName}") //localhost:8084/product/searchProductByName/Lakme
-    public Product getProductByName(@PathVariable("pName")String productName){
-        System.out.println("Fetching details about: "+productName);
-        Product product = new Product(-1,productName,88,99);
-        return product;
+    public List<Product> getProductByName(@PathVariable("pName")String productName){
+        return productService.getProduct(productName);
     }
 
     @GetMapping("/filterProductByPrice/{priceMin}/{priceMax}") //localhost:8084/product/filterProductByPrice/100/500
-    public String filterProductByPrice(@PathVariable("priceMin")int min, @PathVariable("priceMax")int max){
-        Product product = new Product(1,"Laptop",88,200);
-        Product product2 = new Product(2,"Computer",88,300);
-        Product product3 = new Product(3,"Bottle",88,555);
-        Product product4 = new Product(4,"Plush",88,123);
-        ArrayList<Product> products = new ArrayList<Product>();
-        products.add(product);
-        products.add(product2);
-        products.add(product3);
-        products.add(product4);
-        for (int i = 0 ; i < products.size(); i++){
-            if(products.get(i).getPrice() > min && products.get(i).getPrice() < max){
-                break;
-            }
-            else
-                products.remove(products.get(i));
-        }
-
-        return "Here is the result for product in price range of "+min+" and "+max+" \n"+products.toString();
+    public List<Product> filterProductByPrice(@PathVariable("priceMin")int min, @PathVariable("priceMax")int max){
+        return productService.filterProductByPrice(min,max);
     }
 
-    @GetMapping("/outOfStockProductDetails/{qoh}") //localhost:8084/product/outOfStockProductDetails/50
-    public String outOfStockProductDetails(@PathVariable("qoh")int qoh){
-        return "Order with qoh less than "+qoh+" should be reordered immediately";
+    @GetMapping("/qohLessThan/{qoh}") //localhost:8084/product/qohLessThan/50
+    public List<Product> qohLessThanProductDetails(@PathVariable("qoh")int qoh){
+        return productService.getProductByLessQOH(qoh);
+    }
+
+    @GetMapping("/qohGreaterThan/{qoh}") //localhost:8084/product/qohGreaterThan/50
+    public List<Product> qohGreaterThanProductDetails(@PathVariable("qoh")int qoh){
+        return productService.getProductByGreaterQOH(qoh);
     }
 
     @DeleteMapping("{pId}") //localhost:8084/product/89

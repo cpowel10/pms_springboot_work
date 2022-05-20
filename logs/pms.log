@@ -1,8 +1,10 @@
-2022-05-20_12:11:16.950 [http-nio-8084-exec-5] INFO  c.r.pms.controller.ProductController - INFO - Save product started the execution
-2022-05-20_12:11:16.951 [http-nio-8084-exec-5] WARN  c.r.pms.controller.ProductController - WARN - Save product started the execution
-2022-05-20_12:11:16.951 [http-nio-8084-exec-5] ERROR c.r.pms.controller.ProductController - ERROR - Save product started the execution
-2022-05-20_12:11:17.366 [http-nio-8084-exec-5] WARN  c.r.pms.controller.ProductController - Product with product id: 1234 already exists
-2022-05-20_12:11:44.915 [http-nio-8084-exec-1] INFO  c.r.pms.controller.ProductController - INFO - Save product started the execution
-2022-05-20_12:11:44.915 [http-nio-8084-exec-1] WARN  c.r.pms.controller.ProductController - WARN - Save product started the execution
-2022-05-20_12:11:44.915 [http-nio-8084-exec-1] ERROR c.r.pms.controller.ProductController - ERROR - Save product started the execution
-2022-05-20_12:11:45.017 [http-nio-8084-exec-1] INFO  c.r.pms.controller.ProductController - Product with product id: 12345 saved successfully
+2022-05-20_12:49:49.183 [http-nio-8084-exec-1] INFO  c.r.pms.controller.ProductController - INFO - Save product started the execution
+2022-05-20_12:49:49.191 [http-nio-8084-exec-1] WARN  c.r.pms.controller.ProductController - Product with product id: 9999 already exists
+2022-05-20_13:41:41.514 [http-nio-8084-exec-7] INFO  c.r.pms.controller.ProductController - Get products started the execution
+2022-05-20_16:00:56.877 [http-nio-8084-exec-5] INFO  c.r.pms.controller.ProductController - Get products started the execution
+2022-05-20_16:08:15.633 [http-nio-8084-exec-3] INFO  c.r.pms.controller.ProductController - Get products started the execution
+2022-05-20_16:11:05.395 [http-nio-8084-exec-1] INFO  c.r.pms.controller.ProductController - Get products started the execution
+2022-05-20_16:14:06.644 [http-nio-8084-exec-2] INFO  c.r.pms.controller.ProductController - Get products started the execution
+2022-05-20_16:49:33.070 [http-nio-8084-exec-1] INFO  c.r.pms.controller.ProductController - Get product by product ID started the execution
+2022-05-20_16:49:33.102 [http-nio-8084-exec-1] ERROR c.r.pms.controller.ProductController - Product with product id: 0 does not exist
+2022-05-20_16:50:31.340 [http-nio-8084-exec-5] INFO  c.r.pms.controller.ProductController - Get products started the execution

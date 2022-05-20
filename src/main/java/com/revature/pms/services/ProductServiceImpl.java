@@ -3,12 +3,12 @@ package com.revature.pms.services;
 import com.revature.pms.dao.ProductDAO;
 import com.revature.pms.model.Product;
 import com.revature.pms.utilities.NegativeValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -19,12 +19,17 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     NegativeValue negativeValue;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     @Override
     public boolean addProduct(Product product) {
+        LOGGER.info("Adding product to table");
         if(negativeValue.checkNegativeValue(product.getQoh()) || negativeValue.checkNegativeValue(product.getPrice())){
+            LOGGER.error("Cannot add product with productID: "+product.getProductId()+" because either qoh or price is negative");
             return false;
         }
         productDAO.save(product);
+        LOGGER.info("Successfully added product with productID: "+product.getProductId()+" to table");
         return true;
     }
 
@@ -62,26 +67,31 @@ public class ProductServiceImpl implements ProductService{
     //by default these are not exposed
     @Override
     public List<Product> getProduct(String productName) {
-        return null;
+        return productDAO.findByProductName(productName);
     }
 
     @Override
     public List<Product> filterProductByPrice(int minimumPrice, int maximumPrice) {
-        return null;
+        return productDAO.findByPriceBetween(minimumPrice,maximumPrice);
     }
 
     @Override
     public List<Product> getProductByPrice(int price) {
-        return null;
+        return productDAO.findByPrice(price);
     }
 
     @Override
     public List<Product> getProductByQOH(int qoh) {
-        return null;
+        return productDAO.findByQoh(qoh);
     }
 
     @Override
     public List<Product> getProductByGreaterQOH(int greaterQoh) {
-        return null;
+        return productDAO.findByQohGreaterThan(greaterQoh);
+    }
+
+    @Override
+    public List<Product> getProductByLessQOH(int lessQoh) {
+        return productDAO.findByQohLessThan(lessQoh);
     }
 }
