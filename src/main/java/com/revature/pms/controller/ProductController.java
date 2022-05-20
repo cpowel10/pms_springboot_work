@@ -12,11 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("product")
-public class ProductController {
+public class ProductController implements Serializable {
     @Autowired()
     ProductDAO productDAO;
 
@@ -34,20 +39,30 @@ public class ProductController {
 
     boolean result;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
+
     //Method will save a product to DB
     @PostMapping //localhost:8084/product    ---HTTP method POST
     public ResponseEntity<String> saveProduct(@RequestBody Product product){
         ResponseEntity responseEntity=null;
+        LOGGER.trace("TRACE - Save product started the execution");
+        LOGGER.debug("DEBUG - Save product started the execution");
+        LOGGER.info("INFO - Save product started the execution");
+        LOGGER.warn("WARN - Save product started the execution");
+        LOGGER.error("ERROR - Save product started the execution");
         if(productService.isProductExists(product.getProductId())){
+            LOGGER.warn("Product with product id: "+product.getProductId()+" already exists");
             responseEntity = new ResponseEntity<String>("Cannot save because product with product id: "+product.getProductId()+" already exists", HttpStatus.CONFLICT); //409
         }
         else{
             result = productService.addProduct(product);
             if(result){
                 responseEntity = new ResponseEntity<String>("Successfully saved your product: "+product, HttpStatus.OK); //200
+                LOGGER.info("Product with product id: "+product.getProductId()+" saved successfully");
             }
             else{
                 responseEntity = new ResponseEntity<String>("Cannot save either price or qoh is negative", HttpStatus.NOT_ACCEPTABLE); //406
+                LOGGER.error("Product with product id: "+product.getProductId()+" cannot be saved because of negative qoh or price");
             }
         }
         return responseEntity;
@@ -64,15 +79,29 @@ public class ProductController {
     }
 
     @GetMapping //localhost:8084/product
-    public String allProducts(){
-        return "All Products";
+    public ResponseEntity<List<Product>> getProducts(){
+        ResponseEntity responseEntity = null;
+        LOGGER.info("Get products started the execution");
+        List<Product> products = new ArrayList<Product>();
+        products = productService.getProducts();
+        return new ResponseEntity<List<Product>>(products,HttpStatus.OK);
     }
 
     @GetMapping("{pId}") //localhost:8084/product/89
-    public Product getProduct(@PathVariable("pId")int productId){
-        System.out.println("Fetching details about: "+productId);
-        Product product = new Product(productId,"Lakme",88,99);
-        return product;
+    public ResponseEntity<Product> getProduct(@PathVariable("pId")int productId){
+        ResponseEntity responseEntity = null;
+        LOGGER.info("Get product by product ID started the execution");
+        Product product1 = new Product();
+        if(productService.isProductExists(productId)){
+            product1 = productService.getProduct(productId);
+            LOGGER.info("Product with product id: "+productId+" successfully found");
+            responseEntity = new ResponseEntity<Product>(product1,HttpStatus.OK);
+        }
+        else{
+            responseEntity = new ResponseEntity<Product>(product1,HttpStatus.NO_CONTENT);
+            LOGGER.error("Product with product id: "+product.getProductId()+" does not exist");
+        }
+        return responseEntity;
     }
 
     @GetMapping("/searchProductByName/{pName}") //localhost:8084/product/searchProductByName/Lakme
@@ -84,7 +113,6 @@ public class ProductController {
 
     @GetMapping("/filterProductByPrice/{priceMin}/{priceMax}") //localhost:8084/product/filterProductByPrice/100/500
     public String filterProductByPrice(@PathVariable("priceMin")int min, @PathVariable("priceMax")int max){
-        //System.out.println("Here is the result for product in price range of "+min+" and "+max);
         Product product = new Product(1,"Laptop",88,200);
         Product product2 = new Product(2,"Computer",88,300);
         Product product3 = new Product(3,"Bottle",88,555);
@@ -111,17 +139,35 @@ public class ProductController {
     }
 
     @DeleteMapping("{pId}") //localhost:8084/product/89
-    public String deleteProduct(@PathVariable("pId")int productId){
-        return "Deleting details by product ID: "+productId;
+    public ResponseEntity<String> deleteProduct(@PathVariable("pId")int productId){
+        ResponseEntity responseEntity = null;
+        if(productService.isProductExists(productId)){
+            result = productService.deleteProduct(productId);
+            responseEntity = new ResponseEntity<String>("Successfully deleted product with ID: "+productId,HttpStatus.OK);
+        }
+        else{
+            responseEntity = new ResponseEntity<String>("Unable to delete product because there " +
+                    "is no product with productId: "+productId,HttpStatus.CONFLICT);
+        }
+        return responseEntity;
     }
 
     //This method will update a product in DB
     @PutMapping //localhost:8084/product    ---HTTP method POST
-    public String updateProduct(@RequestBody Product product){
-        System.out.println("Updating details of: "+product);
-        //call the methods to update product
-        //return "Cannot update your product because either price or qoh is negative";
-
-        return "Successfully updated product: "+product;
+    public ResponseEntity<String> updateProduct(@RequestBody Product product){
+        ResponseEntity responseEntity=null;
+        if(!productService.isProductExists(product.getProductId())){
+            responseEntity = new ResponseEntity<String>("Cannot save because product with product id: "+product.getProductId()+" does not exist exists", HttpStatus.NO_CONTENT); //409
+        }
+        else{
+            result = productService.updateProduct(product);
+            if(result){
+                responseEntity = new ResponseEntity<String>("Successfully updated your product: "+product, HttpStatus.OK); //200
+            }
+            else{
+                responseEntity = new ResponseEntity<String>("Cannot save either price or qoh is negative", HttpStatus.NOT_ACCEPTABLE); //200
+            }
+        }
+        return responseEntity;
     }
 }

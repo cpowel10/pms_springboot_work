@@ -21,7 +21,6 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public boolean addProduct(Product product) {
-        System.out.println("Adding product in service");
         if(negativeValue.checkNegativeValue(product.getQoh()) || negativeValue.checkNegativeValue(product.getPrice())){
             return false;
         }
@@ -31,16 +30,17 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public boolean deleteProduct(int productId) {
-        System.out.println("Deleting product in service");
         productDAO.deleteById(productId);
-        return false;
+        return true;
     }
 
     @Override
     public boolean updateProduct(Product product) {
-        System.out.println("Updating product in service");
+        if(negativeValue.checkNegativeValue(product.getQoh()) || negativeValue.checkNegativeValue(product.getPrice())){
+            return false;
+        }
         productDAO.save(product);
-        return false;
+        return true;
     }
 
     @Override
